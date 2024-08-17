@@ -1,0 +1,88 @@
+package login
+
+import "github.com/nicknad/krankentransport/pages/components"
+
+templ loginTempl(isLoggedIn bool) {
+    @components.Layout(isLoggedIn) {
+        if isLoggedIn {
+            @AlreadyLoggedIn()
+        } else {
+            @LoginForm()
+        }
+    }
+}
+
+templ LoginForm() {
+    <div class="container">
+        <form
+            hx-post="/action/login"
+            id="login-form"
+            hx-disabled-elt="#login-button"
+            class="col s12 m12"
+            hx-swap="none"
+            hx-on::before-request="document.getElementById('error').innerHTML = ''">
+                <h2 class="center-align"> Login </h2>
+                <div class="row">
+                    <input
+                        id="user"
+                        autofocus
+                        class="center-align" 
+                        type="text"
+                        name="user"
+                        placeholder="Login" />
+                </div>
+                <div class="row">
+                    <input
+                        id="password"
+                        class="center-align" 
+                        type="password"
+                        name="password"
+                        required="required"
+                        placeholder="Password" />
+                </div>
+                <div id="error" class="red darken-2"></div>
+                <div class="row">
+                    <button
+                        id="login-button"
+                        class="btn waves-effect waves-light width100">
+                        Login
+                        <i class="material-icons right">lock_open</i>
+                    </button>
+                </div>
+	    </form>
+    </div>
+}
+
+
+templ AlreadyLoggedIn() {
+    <div class="container">
+        <h2 class="center-align">Eingeloggt</h2>
+        <br>
+        <br>
+        <div class="row">
+            <a href="/" class="btn waves-effect waves-light width100">
+                Krankenfahrten
+                <i class="material-icons right">send</i>
+            </a>
+        </div>
+        <br>
+        <div class="row">
+            <button type="button" class="btn waves-effect waves-light red width100" hx-get="/action/logout">
+                Logout
+                <i class="material-icons right">time_to_leave</i>
+            </button>
+        </div>
+    </div>
+}
+
+templ InvalidPasswordError() {
+	<div id="error" hx-swap-oob="true">
+		@components.ErrorAlert("Invalid password")
+	</div>
+}
+
+templ UnexpectedError() {
+	<div id="error" hx-swap-oob="true">
+		@components.ErrorAlert("Unexpected")
+	</div>
+}

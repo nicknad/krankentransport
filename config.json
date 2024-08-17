@@ -1,0 +1,8 @@
+{
+    "host":{
+        "url":":2209"
+    },
+    "database": {
+        "url":"./krankentransport.db"
+    }
+}

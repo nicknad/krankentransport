@@ -1,0 +1,66 @@
+package home
+
+import "github.com/nicknad/krankentransport/dataaccess"
+import "github.com/nicknad/krankentransport/pages/components"
+import "fmt"
+import "time"
+
+templ HomeLayout(isLoggedIn bool, data []dataaccess.Krankenfahrt) {
+    @components.Layout(isLoggedIn) {
+        <div class="container">
+            <div class="section">
+                <!--   Icon Section   -->
+                <h2 class="center-align"> Fahrtenliste </h2>
+                <div class="row">
+                    <div class="col s12 m12">
+                       @fahrtentabelle(data)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+templ fahrtentabelle(data []dataaccess.Krankenfahrt) {
+    <table class=" highlight">
+        <thead>
+            <tr>
+                <th>Fahrten</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            for _, fahrt := range data {
+                <tr>
+                    <td>
+                        { fahrt.Description }
+                    </td>
+                    @FahrtCell(fahrt)
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+templ FahrtCell(fahrt dataaccess.Krankenfahrt) {
+        <td>
+            if !fahrt.Finished && fahrt.AcceptedAt == nil {
+                <button class="btn waves-effect waves-light red" type="submit" hx-post={ fmt.Sprintf("/action/fahrt/%d", fahrt.Id) } hx-target="closest td">Send
+                    <i class="material-icons right">send</i>
+                </button>
+            } 
+
+            if fahrt.AcceptedAt != nil {
+                { fahrt.AcceptedAt.Local().Format(time.DateTime) } 
+            }
+        </td>
+}
+
+
+templ UnexpectedError() {
+	<div id="error" hx-swap-oob="true">
+		@components.ErrorAlert("Unexpected")
+	</div>
+}

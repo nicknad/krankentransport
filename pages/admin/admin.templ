@@ -1,0 +1,209 @@
+package admin
+
+import "github.com/nicknad/krankentransport/dataaccess"
+import "github.com/nicknad/krankentransport/pages/components"
+import "fmt"
+import "time"
+
+templ AdminLayout(isLoggedIn bool, fahrten []dataaccess.Krankenfahrt, users []dataaccess.User) {
+    @components.Layout(isLoggedIn) {
+        @krankenfahrtlist(fahrten)
+
+        <hr class="solid">
+
+        @userlist(users)
+
+    }
+}
+
+templ krankenfahrtlist(fahrten []dataaccess.Krankenfahrt) {
+   <div class="container">
+            <div class="section">
+                <!--   Icon Section   -->
+                <h2 class="center-align"> Fahrtenliste </h2>
+
+                <div class="row">
+                    <div class="col s12 m12">
+                        @fahrtentable(fahrten)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12 m12">
+                        @fahrtCreationForm()
+                     </div>
+                </div>
+            </div>
+        </div>    
+}
+
+templ fahrtentable(fahrten []dataaccess.Krankenfahrt) {
+    <table class="highlight" id="fahrtentable">
+        <thead>
+            <tr>
+                <th>Fahrten</th>
+                <th>Von</th>
+                <th>Wann</th>
+                <th>Befreie</th>
+                <th>Lösche</th>
+            </tr>
+        </thead>
+        <tbody id="fahrtTableBody">
+            for _, fahrt := range fahrten {
+                @FahrtRow(fahrt)
+            }
+        </tbody>
+    </table>
+}
+
+templ FahrtRow(fahrt dataaccess.Krankenfahrt) {
+     <tr>
+        <td>
+            { fahrt.Description }
+        </td>
+        <td>
+            if fahrt.AcceptedByLogin != nil {
+                { *fahrt.AcceptedByLogin }
+            }
+        </td>
+        <td>
+            if fahrt.AcceptedAt != nil {
+                { fahrt.AcceptedAt.Local().Format(time.DateTime) } 
+            }
+        </td>
+        <td>
+            <a class="btn-floating" hx-post={ fmt.Sprintf("/admin/fahrt/reopen/%d", fahrt.Id)} hx-target="closest tr"><i class="material-icons">save </i></a>
+        </td>
+        <td>
+            <a class="btn-floating" hx-delete={ fmt.Sprintf("/admin/fahrt/delete/%d", fahrt.Id) } hx-confirm="Bist du dir sicher, dass du den Eintrag löschen willst?" hx-target="closest tr"><i class="material-icons">delete</i></a>
+        </td>
+    </tr>
+}
+
+templ userlist(users []dataaccess.User) {
+        <div class="container">
+            <div class="section">
+                <!--   Icon Section   -->
+                <h2 class="center-align"> Benutzer </h2>
+
+                <div class="row">
+                    <div class="col s12 m12">
+                        @usertable(users)
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col s12 m12">
+                        @userCreationForm()
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+
+templ userCreationForm() {
+    <form
+        hx-post="/admin/user/create"
+        id="admin-user-form"
+        hx-disabled-elt="#user-button"
+        class="col s12 m12"
+        hx-swap="beforeend"
+        hx-target="#userTableBody"
+        hx-on::before-request="document.getElementById('error').innerHTML = ''">
+        <h4 class="left-align"> Benutzer anlegen </h4>
+        <div class="row">
+            <input
+                id="user"
+                autofocus
+                class="center-align" 
+                type="text"
+                name="user"
+                placeholder="Login" />
+        </div>
+        <div class="row">
+            <input
+                id="password"
+                class="center-align" 
+                type="password"
+                name="password"
+                required="required"
+                placeholder="Password" />
+        </div>
+        <div>
+            <p>
+                <label>
+                    <input type="checkbox" id="admincheck" name="admincheck" value="admin" class="filled-in" />
+                    <span>Admin</span>
+                </label>
+            </p>
+        </div>
+        <div class="row">
+            <button
+                id="user-button"
+                class="btn waves-effect waves-light width100">
+                Erstellen
+                <i class="material-icons right">add</i>
+            </button>
+        </div>
+    </form>
+}
+
+
+templ fahrtCreationForm() {
+    <form
+        hx-post="/admin/fahrt/create"
+        id="admin-fahrt-form"
+        hx-disabled-elt="#fahrt-button"
+        class="col s12 m12"
+        hx-swap="beforeend"
+        hx-target="#fahrtTableBody">
+        <h4 class="left-align"> Fahrt anlegen </h4>
+        <div class="row">
+            <input
+                id="description"
+                autofocus
+                class="center-align" 
+                type="text"
+                name="description"
+                placeholder="Beschreibung" />
+        </div>
+        <div class="row">
+            <button
+                id="fahrt-button"
+                class="btn waves-effect waves-light width100">
+                Erstellen
+                <i class="material-icons right">add</i>
+            </button>
+        </div>
+    </form>
+}
+
+
+templ usertable(users []dataaccess.User) {
+        <table class="highlight"  id="usertable">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th class="width60px"></th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            for _, user := range users {
+                @UserRow(user)
+            }
+        </tbody>
+    </table>
+}
+
+templ UserRow(user dataaccess.User) {
+    <tr>
+        <td>
+            { user.Login }
+        </td>
+        <td class="width60px">
+            <a class="btn-floating" hx-delete={ fmt.Sprintf("/admin/user/delete/%d", user.Id) } hx-confirm={ fmt.Sprintf("Bist du dir sicher, dass du den User %s löschen willst?", user.Login) } hx-target="closest tr">
+                <i class="material-icons">delete</i>
+            </a>
+        </td>
+    </tr>
+}

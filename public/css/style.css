@@ -1,0 +1,13 @@
+/* Custom Stylesheet */
+
+.width100 {
+    width: 100%;
+}
+
+.width60px  {
+  width: 60px;
+}
+
+hr.solid {
+  border-top: 3px solid #bbb;
+}

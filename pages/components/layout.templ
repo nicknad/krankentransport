@@ -1,0 +1,54 @@
+package components
+
+templ Layout(isLoggedIn bool) {
+	@HtmlWrapper() {
+		@header(isLoggedIn)
+
+        { children... }
+        
+        // @footer()
+	}
+}
+
+templ HtmlWrapper() {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>Krankentransport</title>
+            <meta charset="UTF-8"/>
+            <meta name="author" content="Nick Nadolski">
+            <meta name="description" content="Eine Webseite, auf der Krankenfahrten angezeigt werden und von Fahrern beansprucht werden können.">
+            <!--Import Google Icon Font-->
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+            <!--Import materialize.css-->
+            <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection" />
+            <link type="text/css" rel="stylesheet" href="public/css/style.css" media="screen,projection" />
+            <link rel="icon" type="image/png" sizes="32x32" href="public/img/ambulance.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="public/img/ambulance.png">
+            <!--Let browser know website is optimized for mobile-->
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		</head>
+		<body>
+			{ children... }
+			<script>
+				document.addEventListener("DOMContentLoaded", (event) => {
+					document.body.addEventListener('htmx:beforeSwap', function(evt) {
+						if (evt.detail.xhr.status === 422) {
+							evt.detail.shouldSwap = true;
+							evt.detail.isError = false;
+						}
+					});
+				})
+			</script>
+            <script type="text/javascript" src="public/js/htmx.min.js"></script>
+            <script type="text/javascript" src="public/js/materialize.min.js"></script>
+		</body>
+	</html>
+}
+
+templ Indicator() {
+	<svg class="htmx-indicator animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+		<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+		<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+	</svg>
+}
