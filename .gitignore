@@ -25,3 +25,4 @@ tmp/
 **/*_templ.go
 **/*_templ.txt
 *.db
+.vscode/launch.json

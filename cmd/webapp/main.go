@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"time"
 
@@ -9,26 +9,17 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	session "github.com/nicknad/krankentransport/auth/session"
 	"github.com/nicknad/krankentransport/db"
-	"github.com/nicknad/krankentransport/migrations"
 	"github.com/nicknad/krankentransport/pages"
-	"github.com/spf13/viper"
 )
 
 func main() {
+	var port string
+	var databaseUrl string
+	flag.StringVar(&port, "p", ":2209", "Exposed Port")
+	flag.StringVar(&databaseUrl, "db", "./krankentransport.db", "Database Filename")
+	flag.Parse()
 
-	viper.SetConfigType("json")
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-
-	db.DATABASE_URL = viper.GetString("database.url")
-	fmt.Println(db.DATABASE_URL)
-	addr := viper.GetString("host.url")
-	migrations.RunMigrations()
+	db.DATABASE_URL = databaseUrl
 
 	go func() {
 		for {
@@ -42,7 +33,6 @@ func main() {
 	})
 
 	app.Use(logger.New())
-
 	app.Static("/public", "./public")
 
 	app.Use(func(c *fiber.Ctx) error {
@@ -53,5 +43,5 @@ func main() {
 		return c.Next()
 	})
 	pages.RegisterRoutes(app)
-	log.Fatal(app.Listen(addr))
+	log.Fatal(app.Listen(port))
 }
